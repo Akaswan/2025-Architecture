@@ -1,5 +1,7 @@
 package frc.lib.architecture;
 
+import edu.wpi.first.wpilibj2.command.Command;
+
 public class ControlInterfaces {
     public interface PositionSubsystem {
 
@@ -49,9 +51,9 @@ public class ControlInterfaces {
         void runToPosition(double position);
 
         /**
-         * Executes the motion of the motor to a specified position using a motion profile.
+         * Returns a command that executes the motion of the motor to a specified position using a motion profile.
          * 
-         * <p>Within this method you should set your motor to run to the specified position using a motion profiling 
+         * <p>Within this method you should create a command that sets your motor to run to the specified position using a motion profiling 
          * approach.</p>
          * 
          * <p>Example implementation for different motor controllers:</p>
@@ -60,19 +62,30 @@ public class ControlInterfaces {
          * // EXAMPLE \\ 
          * 
          * // Example implementation for TalonFX motor controller
-         * m_motor.setControl(new MotionMagicVoltage(position));
+         * return new FunctionalCommand(
+         *  () -> {
+         *      m_desiredPosition = position; 
+         *      m_motor.setControl(new MotionMagicVoltage(position));
+         *  },
+         *  null,
+         *  null,
+         *  this::getIsAtSetpoint,
+         *  this
+         * );
          *
          * // Example implementation for SparkMax/SparkFlex motor controller
-         * private final TrapezoidProfileRunner m_profileRunner;
+         * return new TrapezoidProfileToPosition(
+      new TrapezoidProfile(new TrapezoidProfile.Constraints(50, 100)),
+        (state) -> {
+          runToPosition(state.position);
+          m_idealState = state;
+        },
+        position,
+        () -> m_idealState,
+        this::getIsAtSetpoint,
+        this).beforeStarting(() -> m_desiredPosition = position);
          * 
-         * m_profileRunner =
-    new TrapezoidProfileRunner(
-        new TrapezoidProfile(
-            new TrapezoidProfile.Constraints(
-                50, 100)),
-        (position) -> runToPosition(position),
-        this::getPosition,
-        0.1);
+         * 
          * 
          * m_profileRunner.startProfile(position);
          * 
@@ -80,7 +93,7 @@ public class ControlInterfaces {
          * @param position The target position to which the motor should move. The position value is specified in 
          *                 the unit of measurement appropriate for the motor's application (generally meters or degrees).
          */
-        void runProfileToPosition(double position);
+        Command runProfileToPosition(double position);
 
         /**
          * Returns whether a motor is at its desired position
