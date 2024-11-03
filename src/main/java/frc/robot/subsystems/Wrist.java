@@ -20,14 +20,13 @@ import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.lib.architecture.ControlInterfaces.PositionSubsystem;
 import frc.robot.Constants;
 import frc.robot.Constants.MotorIds;
-import frc.robot.Constants.ShoulderConstants;
+import frc.robot.Constants.WristConstants;
 import frc.robot.commands.TrapezoidProfileToPosition;
 
-public class Shoulder extends SubsystemBase implements PositionSubsystem {
+public class Wrist extends SubsystemBase implements PositionSubsystem {
   /** Creates a new Shoulder. */
 
   private CANSparkMax m_motor;
@@ -38,27 +37,24 @@ public class Shoulder extends SubsystemBase implements PositionSubsystem {
 
   private TrapezoidProfile.State m_idealState = new TrapezoidProfile.State(0, 0);
 
-  public Trigger isUp = new Trigger(() -> getPosition() == 100);
-  public Trigger isDown = new Trigger(() -> getPosition() == 0);
+  public Wrist() {
 
-  public Shoulder() {
-
-    m_motor = new CANSparkMax(MotorIds.kShoulderId, MotorType.kBrushless);
+    m_motor = new CANSparkMax(MotorIds.kWristId, MotorType.kBrushless);
 
     m_encoder = m_motor.getEncoder();
     m_controller = m_motor.getPIDController();
 
-    m_motor.setIdleMode(ShoulderConstants.kIdleMode);
-    m_motor.setSmartCurrentLimit(ShoulderConstants.kCurrentLimit);
-    m_motor.setInverted(ShoulderConstants.kInverted);
+    m_motor.setIdleMode(WristConstants.kIdleMode);
+    m_motor.setSmartCurrentLimit(WristConstants.kCurrentLimit);
+    m_motor.setInverted(WristConstants.kInverted);
 
-    m_controller.setP(ShoulderConstants.kKp);
-    m_controller.setI(ShoulderConstants.kKi);
-    m_controller.setD(ShoulderConstants.kKd);
+    m_controller.setP(WristConstants.kKp);
+    m_controller.setI(WristConstants.kKi);
+    m_controller.setD(WristConstants.kKd);
 
-    m_encoder.setPosition(ShoulderConstants.kHomePosition);
-    m_encoder.setPositionConversionFactor(ShoulderConstants.kPositionConversionFactor);
-    m_encoder.setVelocityConversionFactor(ShoulderConstants.kPositionConversionFactor / 60);
+    m_encoder.setPosition(WristConstants.kHomePosition);
+    m_encoder.setPositionConversionFactor(WristConstants.kPositionConversionFactor);
+    m_encoder.setVelocityConversionFactor(WristConstants.kPositionConversionFactor / 60);
 
     m_motor.setPeriodicFramePeriod(PeriodicFrame.kStatus0, 10);
     m_motor.setPeriodicFramePeriod(PeriodicFrame.kStatus2, 20);
@@ -67,10 +63,10 @@ public class Shoulder extends SubsystemBase implements PositionSubsystem {
     m_motor.setPeriodicFramePeriod(PeriodicFrame.kStatus5, 65534);
     m_motor.setPeriodicFramePeriod(PeriodicFrame.kStatus6, 65534);
 
-    m_idealState.position = ShoulderConstants.kHomePosition;
-    m_desiredPosition = ShoulderConstants.kHomePosition;
+    m_idealState.position = WristConstants.kHomePosition;
+    m_desiredPosition = WristConstants.kHomePosition;
 
-    runToPosition(ShoulderConstants.kHomePosition);
+    runToPosition(WristConstants.kHomePosition);
   }
 
   @Override
@@ -86,7 +82,7 @@ public class Shoulder extends SubsystemBase implements PositionSubsystem {
   @Override
   public Command runProfileToPosition(double position) {
     return new TrapezoidProfileToPosition(
-      new TrapezoidProfile(new TrapezoidProfile.Constraints(ShoulderConstants.kMaxVelocity, ShoulderConstants.kMaxAcceleration)),
+      new TrapezoidProfile(new TrapezoidProfile.Constraints(WristConstants.kMaxVelocity, WristConstants.kMaxAcceleration)),
         (state) -> {
           runToPosition(state.position);
           m_idealState = state;
@@ -99,13 +95,13 @@ public class Shoulder extends SubsystemBase implements PositionSubsystem {
 
   @Override
   public boolean getIsAtSetpoint() {
-    return Math.abs(getPosition() - m_desiredPosition) < ShoulderConstants.kSetpointTolerance;
+    return Math.abs(getPosition() - m_desiredPosition) < WristConstants.kSetpointTolerance;
   }
 
   @Override
   public void manualControl(Supplier<Double> throttle) {
     double adjustedThrottle = MathUtil.applyDeadband(-throttle.get(), 0.1);
-    double newDesiredPosition = MathUtil.clamp(m_desiredPosition + adjustedThrottle, ShoulderConstants.kMinPosition, ShoulderConstants.kMaxPosition);
+    double newDesiredPosition = MathUtil.clamp(m_desiredPosition + adjustedThrottle, WristConstants.kMinPosition, WristConstants.kMaxPosition);
     double velocity = (newDesiredPosition - m_desiredPosition) / Constants.kdt;
     
     m_desiredPosition = newDesiredPosition;
@@ -120,13 +116,13 @@ public class Shoulder extends SubsystemBase implements PositionSubsystem {
   }
 
   public Command up() {
-    return runProfileToPosition(100);
+    return runProfileToPosition(50);
   }
 
   @Override
   public void periodic() {
-    SmartDashboard.putNumber("Shoulder Desired Position", m_desiredPosition);
-    SmartDashboard.putNumber("Shoulder Ideal Position", m_idealState.position);
-    SmartDashboard.putNumber("Shoulder Actual Position", getPosition());
+    SmartDashboard.putNumber("Wrist Desired Position", m_desiredPosition);
+    SmartDashboard.putNumber("Wrist Ideal Position", m_idealState.position);
+    SmartDashboard.putNumber("Wrist Actual Position", getPosition());
   }
 }

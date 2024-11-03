@@ -114,6 +114,30 @@ public class ControlInterfaces {
          */
         boolean getIsAtSetpoint();
 
+      /**
+       * Executes motor motion to a specified position using a driver’s controller with an integrated PID control loop.
+       * 
+       * <p>This method utilizes the <code>runToPosition()</code> function to move based on joystick or button input from a controller.</p>
+       * 
+       * <p>Example implementation:</p>
+       * <pre>
+       * 
+       *  public void manualControl(Supplier<Double> throttle) {
+       *     double adjustedThrottle = MathUtil.applyDeadband(-throttle.get(), 0.1);
+       *     double newDesiredPosition = MathUtil.clamp(m_desiredPosition + adjustedThrottle, ShoulderConstants.kMinPosition, ShoulderConstants.kMaxPosition);
+       *     double velocity = (newDesiredPosition - m_desiredPosition) / Constants.kdt;
+       *     
+       *     m_desiredPosition = newDesiredPosition;
+       *     m_idealState.position = m_desiredPosition;
+       *     m_idealState.velocity = velocity;
+       *
+       *     runToPosition(m_desiredPosition);
+       *  }
+       * </pre>
+       * 
+       * @param throttle The supplier providing input for the target position. The value typically represents a position offset
+       *                 and is in the unit of measurement used by the motor (e.g., meters or degrees).
+       */
         void manualControl(Supplier<Double> throttle);
     }
 
