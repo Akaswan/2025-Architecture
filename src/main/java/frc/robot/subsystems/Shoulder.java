@@ -7,16 +7,21 @@ package frc.robot.subsystems;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.RelativeEncoder;
 import com.revrobotics.SparkPIDController;
+
+import java.util.function.Supplier;
+
 import com.revrobotics.CANSparkBase.ControlType;
 import com.revrobotics.CANSparkLowLevel.MotorType;
 import com.revrobotics.CANSparkLowLevel.PeriodicFrame;
 
+import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.lib.architecture.ControlInterfaces.PositionSubsystem;
+import frc.robot.Constants;
 import frc.robot.Constants.MotorIds;
 import frc.robot.Constants.ShoulderConstants;
 import frc.robot.commands.TrapezoidProfileToPosition;
@@ -71,14 +76,13 @@ public class Shoulder extends SubsystemBase implements PositionSubsystem {
 
   @Override
   public void runToPosition(double position) {
-    System.out.println(position);
     m_controller.setReference(position, ControlType.kPosition);
   }
 
   @Override
   public Command runProfileToPosition(double position) {
     return new TrapezoidProfileToPosition(
-      new TrapezoidProfile(new TrapezoidProfile.Constraints(50, 100)),
+      new TrapezoidProfile(new TrapezoidProfile.Constraints(50, 1250)),
         (state) -> {
           runToPosition(state.position);
           m_idealState = state;
@@ -92,6 +96,19 @@ public class Shoulder extends SubsystemBase implements PositionSubsystem {
   @Override
   public boolean getIsAtSetpoint() {
     return Math.abs(getPosition() - m_desiredPosition) < ShoulderConstants.kSetpointTolerance;
+  }
+
+  @Override
+  public void manualControl(Supplier<Double> throttle) {
+    double adjustedThrottle = MathUtil.applyDeadband(-throttle.get(), 0.1);
+    double newDesiredPosition = MathUtil.clamp(m_desiredPosition + adjustedThrottle, ShoulderConstants.kMinPosition, ShoulderConstants.kMaxPosition);
+    double velocity = (newDesiredPosition - m_desiredPosition) / Constants.kdt;
+    
+    m_desiredPosition = newDesiredPosition;
+    m_idealState.position = m_desiredPosition;
+    m_idealState.velocity = velocity;
+
+    runToPosition(m_desiredPosition);
   }
 
   public Command stow() {

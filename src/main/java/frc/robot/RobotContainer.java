@@ -20,6 +20,8 @@ public class RobotContainer {
   }
 
   private void configureBindings() {
+    shoulder.setDefaultCommand(Commands.run(() -> shoulder.manualControl(m_controller::getLeftY), shoulder));
+
     m_controller.a().onTrue(shoulder.stow());
     m_controller.y().onTrue(shoulder.up());
     

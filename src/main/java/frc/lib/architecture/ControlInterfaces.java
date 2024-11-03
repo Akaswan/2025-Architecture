@@ -1,5 +1,7 @@
 package frc.lib.architecture;
 
+import java.util.function.Supplier;
+
 import edu.wpi.first.wpilibj2.command.Command;
 
 public class ControlInterfaces {
@@ -111,6 +113,8 @@ public class ControlInterfaces {
          * <code>false</code> otherwise.
          */
         boolean getIsAtSetpoint();
+
+        void manualControl(Supplier<Double> throttle);
     }
 
     // public interface MultiMotorPositionSubsystem {
