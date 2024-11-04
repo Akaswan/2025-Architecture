@@ -8,6 +8,7 @@ public class Constants {
     public class MotorIds {
         public static final int kShoulderId = 12; 
         public static final int kWristId = 11; 
+        public static final int kIntakeId = 10;
     }
 
     public class ShoulderConstants {
@@ -46,5 +47,12 @@ public class Constants {
         public static final double kMaxPosition = 50.0;
         public static final double kMinPosition = 0.0;
         public static final double kPositionConversionFactor = 1;
+    }
+
+    public class IntakeConstants {
+        public static final IdleMode kIdleMode = IdleMode.kBrake;
+
+        public static final int kCurrentLimit = 80;
+        public static final boolean kInverted = false;
     }
 }

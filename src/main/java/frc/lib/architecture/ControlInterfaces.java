@@ -141,6 +141,53 @@ public class ControlInterfaces {
         void manualControl(Supplier<Double> throttle);
     }
 
+    public interface VoltageSubsystem {
+
+        /**
+         * 
+         * Returns the position of the subsystems motor
+         * 
+         * <p>Within this method you should you shouldreturn the position that comes from your subsystems motor encoder.</p>
+         * 
+         * <p>Example implementation for different motor controllers:</p>
+         * <pre>
+         * 
+         * // EXAMPLE \\
+         * 
+         * // Example implementation for TalonFX motor controller
+         * return m_motor.getMotorVoltage().getValue();
+         *
+         * // Example implementation for SparkMax/SparkFlex motor controller
+         * return m_motor.getBusVoltage();
+         *
+         * </pre>
+         * @return The current position of the subsystem's motor, represented in the appropriate unit of measurement
+         * for the motor's application (generally meters or degrees).
+         */
+        double getVoltage();
+
+        /**
+         * Executes the motion of the motor to a specified voltage.
+         * 
+         * <p>Within this method you should set your motor to run to the specified voltage.</p>
+         * 
+         * <p>Example implementation for different motor controllers:</p>
+         * <pre>
+         * 
+         * // EXAMPLE \\
+         * 
+         * // Example implementation for TalonFX motor controller
+         * m_motor.setControl(new VoltageOut(voltage));
+         *
+         * // Example implementation for SparkMax/SparkFlex motor controller
+         * m_motor.setVoltage(voltage);
+         *
+         * </pre>
+         * @param voltage The target voltage to which the motor should move at.
+         */
+        void setVoltage(double voltage);
+    }
+
     // public interface MultiMotorPositionSubsystem {
     //     /**
     //      * 

@@ -7,6 +7,7 @@ package frc.robot;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
+import frc.robot.subsystems.Intake;
 import frc.robot.subsystems.Shoulder;
 import frc.robot.subsystems.Wrist;
 
@@ -14,8 +15,9 @@ public class RobotContainer {
 
   private static Shoulder m_shoulder = new Shoulder();
   private static Wrist m_wrist = new Wrist();
+  private static Intake m_intake = new Intake();
 
-  public static SubsystemCommandComposer subsystemStateManager = new SubsystemCommandComposer(m_shoulder, m_wrist);
+  public static SubsystemCommandComposer subsystemStateManager = new SubsystemCommandComposer(m_shoulder, m_wrist, m_intake);
 
   private CommandXboxController m_controller = new CommandXboxController(0);
 
