@@ -16,7 +16,7 @@ import frc.lib.architecture.ControlInterfaces.VoltageSubsystem;
 import frc.robot.Constants.MotorIds;
 import frc.robot.Constants.IntakeConstants;
 
-public class Intake extends SubsystemBase implements VoltageSubsystem{
+public class Intake extends SubsystemBase implements VoltageSubsystem {
 
   private CANSparkMax m_motor;
 
